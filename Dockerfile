@@ -1,4 +1,6 @@
-FROM golang:latest
+FROM golang:latest AS builder
 WORKDIR /home/container
-ADD minecraftinflux .
-CMD [ "./minecraftinflux" ]
+ADD . .
+RUN go get -d ./... && \
+    go build -o minecraftinflux -i *.go
+CMD [ "./minecraftinflux", "start" ]
