@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -38,7 +39,7 @@ func LoadConfig() {
 	file, err := os.Open(ConfigPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			SaveDefaultConfig()
+			file = SaveDefaultConfig()
 			log.Println("Saved default config at", ConfigPath)
 		} else {
 			log.Fatalln("Unable to open config file:", err)
@@ -85,13 +86,18 @@ func SaveDefaultConfig() *os.File {
 		return nil
 	}
 
+	err = os.MkdirAll(filepath.Dir(ConfigPath), os.ModePerm)
+	if err != nil {
+		log.Fatalln("Unable to create config file directories:", err)
+		return nil
+	}
+
 	file, err := os.Create(ConfigPath)
 	if err != nil {
 		log.Fatalln("Unable to create config file:", err)
 		return nil
 	}
 
-	defer file.Close()
 	_, err = file.WriteString(string(contents))
 	if err != nil {
 		log.Fatalln("Unable to save default config:", err)
