@@ -33,14 +33,13 @@ type Server struct {
 var AppConfig = &Config{}
 
 func LoadConfig() {
-	path := GetConfigPath()
-	log.Println("Loading config from", path)
+	log.Println("Loading config from", ConfigPath)
 
-	file, err := os.Open(path)
+	file, err := os.Open(ConfigPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			SaveDefaultConfig()
-			log.Println("Saved default config at", path)
+			log.Println("Saved default config at", ConfigPath)
 		} else {
 			log.Fatalln("Unable to open config file:", err)
 			return
@@ -86,7 +85,7 @@ func SaveDefaultConfig() *os.File {
 		return nil
 	}
 
-	file, err := os.Create(GetConfigPath())
+	file, err := os.Create(ConfigPath)
 	if err != nil {
 		log.Fatalln("Unable to create config file:", err)
 		return nil
@@ -100,13 +99,4 @@ func SaveDefaultConfig() *os.File {
 	}
 
 	return file
-}
-
-func GetConfigPath() string {
-	path := "/etc/minecraft-influx/config.yml"
-	if env, ok := os.LookupEnv("MI_CONFIG_PATH"); ok {
-		path = env
-	}
-
-	return path
 }

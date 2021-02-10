@@ -3,15 +3,42 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/influxdata/influxdb-client-go/v2/api/write"
+	"github.com/urfave/cli"
 	"github.com/whatupdave/mcping"
 )
 
-func main() {
-	LoadConfig()
+var ConfigPath string
 
+func main() {
+	app := &cli.App{
+		Name: "MinecraftInflux",
+		Commands: []cli.Command{
+			{
+				Name:   "start",
+				Action: Start,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "config",
+						Value:       "/etc/minecraft-influx/config.yml",
+						Destination: &ConfigPath,
+					},
+				},
+			},
+		},
+	}
+
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatalln("Unable to run app:", err)
+	}
+}
+
+func Start(_ *cli.Context) {
+	LoadConfig()
 	SetupInfluxClient()
 	defer InfluxClient.Close()
 
